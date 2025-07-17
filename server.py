@@ -5,10 +5,30 @@ import os
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)
+
+# Configure CORS for your specific Vercel domain
+CORS(app, origins=[
+    'https://face-recogn-live-2i9re4flt-lollitoonland-8289s-projects.vercel.app',
+    'http://localhost:3000',  # for local development
+    'https://localhost:3000'
+], supports_credentials=True)
+
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20MB limit
 
 # Load model artifacts on startup
+try:
+    util.load_saved_artifacts()
+    print("✅ Model artifacts loaded successfully")
+except Exception as e:
+    print(f"❌ Error loading artifacts: {e}")
+
+@app.route("/", methods=["GET"])
+def home():
+    return "Flask server is running for Sports Celebrity Classifier!"
+
+@app.route("/classify_image", methods=["POST"])
+def classify_image():
+    # Load model artifacts on startup
 try:
     util.load_saved_artifacts()
     print("✅ Model artifacts loaded successfully")
@@ -39,10 +59,12 @@ def classify_image():
         result = util.classify_image(image_data)
         return jsonify(result)
     except Exception as e:
+        print(f"❌ Classification error: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     print("Starting Python Flask Server For Sports Celebrity Image Classification")
-    util.load_saved_artifacts()
+    # Remove this duplicate loading
+    # util.load_saved_artifacts()  # DELETE THIS LINE
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)

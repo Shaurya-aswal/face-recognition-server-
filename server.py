@@ -3,9 +3,17 @@ from flask_cors import CORS
 import util
 import os
 
+# Initialize Flask app
 app = Flask(__name__)
 CORS(app)
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20MB limit
+
+# Load model artifacts on startup
+try:
+    util.load_saved_artifacts()
+    print("✅ Model artifacts loaded successfully")
+except Exception as e:
+    print(f"❌ Error loading artifacts: {e}")
 
 @app.route("/", methods=["GET"])
 def home():
@@ -37,4 +45,4 @@ if __name__ == "__main__":
     print("Starting Python Flask Server For Sports Celebrity Image Classification")
     util.load_saved_artifacts()
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=False)

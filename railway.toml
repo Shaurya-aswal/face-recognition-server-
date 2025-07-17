@@ -1,0 +1,12 @@
+[build]
+  builder = "NIXPACKS"
+
+[build.nixpacks]
+  providers = ["python"]
+
+[build.nixpacks.config]
+  pythonVersion = "3.10.13"
+
+[build.nixpacks.env]
+  PYTHONPATH = "/app"
+  OPENCV_VIDEOIO_PRIORITY_MSMF = "0"

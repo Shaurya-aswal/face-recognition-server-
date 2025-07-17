@@ -1,14 +1,6 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-import util
-import os
-
-# Initialize Flask app
-app = Flask(__name__)
-
 # Configure CORS for your specific Vercel domain
 CORS(app, origins=[
-    'https://face-recogn-live-2i9re4flt-lollitoonland-8289s-projects.vercel.app',
+    'https://face-recogn-live-mu.vercel.app',  # ✅ Your current domain 
     'http://localhost:3000',  # for local development
     'https://localhost:3000'
 ], supports_credentials=True, methods=['GET', 'POST', 'OPTIONS'])

@@ -44,7 +44,7 @@ def health():
     return jsonify({
         "status": "healthy",
         "model_loaded": model_loaded,
-        "python_version": "3.11.5"
+        "python_version": "3.10.12"
     }), 200
 
 @app.route("/classify_image", methods=["POST", "OPTIONS"])

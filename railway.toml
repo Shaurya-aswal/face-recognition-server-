@@ -5,12 +5,13 @@ builder = "nixpacks"
 providers = ["python"]
 
 [build.nixpacks.config]
-pythonVersion = "3.11.5"
+pythonVersion = "3.10.12"
 
 [build.nixpacks.env]
 PYTHONPATH = "/app"
 OPENCV_VIDEOIO_PRIORITY_MSMF = "0"
 PIP_NO_CACHE_DIR = "1"
+SETUPTOOLS_USE_DISTUTILS = "stdlib"
 
 [deploy]
 startCommand = "gunicorn --bind 0.0.0.0:$PORT --timeout 120 --workers 1 --worker-class sync --max-requests 1000 --max-requests-jitter 100 server:app"

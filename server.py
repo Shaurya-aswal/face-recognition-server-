@@ -28,19 +28,6 @@ def home():
 
 @app.route("/classify_image", methods=["POST"])
 def classify_image():
-    # Load model artifacts on startup
-try:
-    util.load_saved_artifacts()
-    print("✅ Model artifacts loaded successfully")
-except Exception as e:
-    print(f"❌ Error loading artifacts: {e}")
-
-@app.route("/", methods=["GET"])
-def home():
-    return "Flask server is running for Sports Celebrity Classifier!"
-
-@app.route("/classify_image", methods=["POST"])
-def classify_image():
     try:
         # Check if request has JSON data
         if not request.json:
@@ -64,7 +51,5 @@ def classify_image():
 
 if __name__ == "__main__":
     print("Starting Python Flask Server For Sports Celebrity Image Classification")
-    # Remove this duplicate loading
-    # util.load_saved_artifacts()  # DELETE THIS LINE
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)

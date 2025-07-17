@@ -19,11 +19,13 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # Virtual environments
 venv/
-env/
 ENV/
+env/
+.venv/
 
 # IDE
 .vscode/
@@ -35,13 +37,18 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# Local test files
-test_*.py
-*_test.py
-
 # Logs
 *.log
 
 # Environment variables
 .env
 .env.local
+.env.production
+
+# Test files
+test_*.py
+*_test.py
+
+# Temporary files
+*.tmp
+*.temp

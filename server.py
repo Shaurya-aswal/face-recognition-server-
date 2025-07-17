@@ -1,3 +1,11 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import util
+import os
+
+# Initialize Flask app
+app = Flask(__name__)
+
 # Configure CORS for your specific Vercel domain
 CORS(app, origins=[
     'https://face-recogn-live-mu.vercel.app',  # ✅ Your current domain 
@@ -28,9 +36,15 @@ def home():
 @app.route("/health", methods=["GET"])
 def health():
     """Health check endpoint for Railway"""
+    try:
+        model_loaded = hasattr(util, '__model') and util.__model is not None
+    except:
+        model_loaded = False
+    
     return jsonify({
         "status": "healthy",
-        "model_loaded": util.__model is not None if hasattr(util, '__model') else False
+        "model_loaded": model_loaded,
+        "python_version": "3.11.5"
     }), 200
 
 @app.route("/classify_image", methods=["POST", "OPTIONS"])

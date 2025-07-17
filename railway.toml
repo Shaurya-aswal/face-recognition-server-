@@ -1,12 +1,19 @@
 [build]
-  builder = "NIXPACKS"
+builder = "nixpacks"
 
 [build.nixpacks]
-  providers = ["python"]
+providers = ["python"]
 
 [build.nixpacks.config]
-  pythonVersion = "3.10.13"
+pythonVersion = "3.10.13"
 
 [build.nixpacks.env]
-  PYTHONPATH = "/app"
-  OPENCV_VIDEOIO_PRIORITY_MSMF = "0"
+PYTHONPATH = "/app"
+OPENCV_VIDEOIO_PRIORITY_MSMF = "0"
+
+[deploy]
+startCommand = "gunicorn --bind 0.0.0.0:$PORT --timeout 120 --workers 1 --worker-class sync server:app"
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10

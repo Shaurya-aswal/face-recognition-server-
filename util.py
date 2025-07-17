@@ -53,31 +53,48 @@ def classify_image(image_base64_data, file_path=None):
     if __model is None:
         raise ValueError("Model not loaded. Call load_saved_artifacts() first.")
     
-    imgs = get_cropped_image_if_2_eyes(file_path, image_base64_data)
-    results = []
+    try:
+        imgs = get_cropped_image_if_2_eyes(file_path, image_base64_data)
+        
+        if not imgs:
+            return [{
+                'error': 'No face detected with 2 eyes found in the image',
+                'class': 'unknown',
+                'class_probability': [],
+                'class_dictionary': __class_name_to_number
+            }]
+        
+        results = []
+        for img in imgs:
+            scalled_raw_img = cv2.resize(img, (32, 32))
+            img_har = w2d(img, 'db1', 5)
+            scalled_img_har = cv2.resize(img_har, (32, 32))
 
-    for img in imgs:
-        scalled_raw_img = cv2.resize(img, (32, 32))
-        img_har = w2d(img, 'db1', 5)
-        scalled_img_har = cv2.resize(img_har, (32, 32))
+            combined_img = np.vstack((
+                scalled_raw_img.reshape(32 * 32 * 3, 1),
+                scalled_img_har.reshape(32 * 32, 1)
+            ))
 
-        combined_img = np.vstack((
-            scalled_raw_img.reshape(32 * 32 * 3, 1),
-            scalled_img_har.reshape(32 * 32, 1)
-        ))
+            final_img = combined_img.reshape(1, -1).astype(float)
 
-        final_img = combined_img.reshape(1, -1).astype(float)
+            predicted_class = __model.predict(final_img)[0]
+            class_probabilities = __model.predict_proba(final_img)[0]
 
-        predicted_class = __model.predict(final_img)[0]
-        class_probabilities = __model.predict_proba(final_img)[0]
+            results.append({
+                'class': class_number_to_name(predicted_class),
+                'class_probability': np.around(class_probabilities * 100, 2).tolist(),
+                'class_dictionary': __class_name_to_number
+            })
 
-        results.append({
-            'class': class_number_to_name(predicted_class),
-            'class_probability': np.around(class_probabilities * 100, 2).tolist(),
+        return results
+    except Exception as e:
+        print(f"❌ Error in classify_image: {e}")
+        return [{
+            'error': str(e),
+            'class': 'unknown',
+            'class_probability': [],
             'class_dictionary': __class_name_to_number
-        })
-
-    return results
+        }]
 
 def class_number_to_name(class_num):
     return __class_number_to_name.get(class_num, "Unknown")
@@ -89,15 +106,24 @@ def load_saved_artifacts():
     global __model
 
     try:
-        with open("./artifacts/class_dictionary.json", "r") as f:
+        # Get the directory of this script
+        import os
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        artifacts_dir = os.path.join(base_dir, "artifacts")
+        
+        class_dict_path = os.path.join(artifacts_dir, "class_dictionary.json")
+        model_path = os.path.join(artifacts_dir, "saved_model_.pkl")
+
+        with open(class_dict_path, "r") as f:
             __class_name_to_number = json.load(f)
             __class_number_to_name = {v: k for k, v in __class_name_to_number.items()}
 
         if __model is None:
-            with open('./artifacts/saved_model_.pkl', 'rb') as f:
+            with open(model_path, 'rb') as f:
                 __model = joblib.load(f)
 
         print("✅ Artifacts loaded successfully.")
+        print(f"📊 Loaded {len(__class_name_to_number)} classes: {list(__class_name_to_number.keys())}")
     except FileNotFoundError as e:
         print(f"❌ Error: Required artifact not found - {e}")
         raise

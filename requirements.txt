@@ -7,3 +7,5 @@ PyWavelets==1.4.1
 scikit-learn==1.6.1
 setuptools<70
 gunicorn==21.2.0
+Pillow==10.0.0
+pywt==1.4.1

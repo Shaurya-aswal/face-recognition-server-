@@ -11,7 +11,7 @@ CORS(app, origins=[
     'https://face-recogn-live-2i9re4flt-lollitoonland-8289s-projects.vercel.app',
     'http://localhost:3000',  # for local development
     'https://localhost:3000'
-], supports_credentials=True)
+], supports_credentials=True, methods=['GET', 'POST', 'OPTIONS'])
 
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20MB limit
 
@@ -24,10 +24,29 @@ except Exception as e:
 
 @app.route("/", methods=["GET"])
 def home():
-    return "Flask server is running for Sports Celebrity Classifier!"
+    return jsonify({
+        "message": "Flask server is running for Sports Celebrity Classifier!",
+        "status": "healthy",
+        "endpoints": {
+            "classify": "/classify_image",
+            "health": "/health"
+        }
+    })
 
-@app.route("/classify_image", methods=["POST"])
+@app.route("/health", methods=["GET"])
+def health():
+    """Health check endpoint for Railway"""
+    return jsonify({
+        "status": "healthy",
+        "model_loaded": util.__model is not None if hasattr(util, '__model') else False
+    }), 200
+
+@app.route("/classify_image", methods=["POST", "OPTIONS"])
 def classify_image():
+    # Handle preflight OPTIONS request
+    if request.method == 'OPTIONS':
+        return '', 200
+    
     try:
         # Check if request has JSON data
         if not request.json:
